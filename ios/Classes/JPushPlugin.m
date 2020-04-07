@@ -4,6 +4,7 @@
 #endif
 
 #import <JPush/JPUSHService.h>
+#import <JPush/JPushNotificationExtensionService.h>
 
 #define JPLog(fmt, ...) NSLog((@"| JPUSH | Flutter | iOS | " fmt), ##__VA_ARGS__)
 
@@ -543,6 +544,11 @@ didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSe
     }
     
     completionHandler(notificationTypes);
+	
+	[UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [JPUSHService setBadge:0];
+    // 上报送达
+    [JPushNotificationExtensionService jpushReceiveNotificationRequest:notification.request with:^{}];
 }
 
 - (void)jpushNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler  API_AVAILABLE(ios(10.0)){
@@ -552,6 +558,12 @@ didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSe
         [_channel invokeMethod:@"onOpenNotification" arguments: [self jpushFormatAPNSDic:userInfo]];
     }
     completionHandler();
+	
+	[UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [JPUSHService setBadge:0];
+    
+    // 上报送达
+    [JPushNotificationExtensionService jpushReceiveNotificationRequest:response.notification.request with:^{}];
 }
 
 - (void)jpushNotificationAuthorization:(JPAuthorizationStatus)status withInfo:(NSDictionary *)info {
